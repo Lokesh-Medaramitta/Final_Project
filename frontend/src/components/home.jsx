@@ -18,6 +18,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 const Home = () => {
   const [todos, setTodos] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+
   useEffect(() => {
     const getData = async () => {
       getTodos();
@@ -45,36 +46,34 @@ const Home = () => {
     }
   };
 
-   const handleNewTodo = async (todo) => {
-  try {
-    const formData = new FormData();
-    formData.append("title", todo.title);
-    formData.append("description", todo.description);
-    formData.append("dosage", todo.dosage);
-    formData.append("manufacturingDate", todo.manufacturingDate);
-    formData.append("expiryDate", todo.expiryDate);
-    if (todo.image) {
-      formData.append("image", todo.image); // Append the image file
+  const handleNewTodo = async (todo) => {
+    try {
+      const formData = new FormData();
+      formData.append("title", todo.title);
+      formData.append("description", todo.description);
+      formData.append("dosage", todo.dosage);
+      formData.append("dueDate", todo.dueDate);
+      formData.append("expiryDate", todo.expiryDate);
+      if (todo.image) formData.append("image", todo.image);
+
+      await axios.post(`${API_URL}/todos`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      await getTodos();
+      setModalOpen(false);
+    } catch (err) {
+      console.log("Error: ", err);
     }
-
-    await axios.post(${API_URL}/todos, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    await getTodos();
-    setModalOpen(false);
-  } catch (err) {
-    console.log("Error: ", err);
-  }
-};
-
+  };
 
   return (
     <>
       <Card>
         <CardBody>
-          <CardTitle tag="h1">Details</CardTitle>
+          <CardTitle tag="h1">Todos</CardTitle>
           <ListGroup>
             {todos.map((todo) => {
               return (
@@ -95,9 +94,19 @@ const Home = () => {
                       />
                     </div>
                     <h5>{todo.title}</h5>
-                    <small>Due: {todo.due_date}</small>
+                    <small>
+                      Due: {todo.dueDate} | Expiry: {todo.expiryDate}
+                    </small>
                   </div>
                   <p className="mb-1">{todo.description}</p>
+                  <p className="mb-1">Dosage: {todo.dosage}</p>
+                  {todo.image && (
+                    <img
+                      src={`${API_URL}/uploads/${todo.image}`}
+                      alt={todo.title}
+                      style={{ maxWidth: "100px", maxHeight: "100px" }}
+                    />
+                  )}
                 </ListGroupItem>
               );
             })}

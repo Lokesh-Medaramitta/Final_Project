@@ -45,21 +45,36 @@ const Home = () => {
     }
   };
 
-  const handleNewTodo = async (todo) => {
-    try {
-      await axios.post(`${API_URL}/todos`, todo);
-      await getTodos();
-      setModalOpen(false);
-    } catch (err) {
-      console.log("Error: ", err);
+   const handleNewTodo = async (todo) => {
+  try {
+    const formData = new FormData();
+    formData.append("title", todo.title);
+    formData.append("description", todo.description);
+    formData.append("dosage", todo.dosage);
+    formData.append("manufacturingDate", todo.manufacturingDate);
+    formData.append("expiryDate", todo.expiryDate);
+    if (todo.image) {
+      formData.append("image", todo.image); // Append the image file
     }
-  };
+
+    await axios.post(${API_URL}/todos, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    await getTodos();
+    setModalOpen(false);
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+};
+
 
   return (
     <>
       <Card>
         <CardBody>
-          <CardTitle tag="h1">Todos</CardTitle>
+          <CardTitle tag="h1">Details</CardTitle>
           <ListGroup>
             {todos.map((todo) => {
               return (
